@@ -1,2 +1,1 @@
-# redifying-balls
-This is a project in which the user can generate balls by clicking on the screen. The more balls, the redder they become.
+Click on the screen to create a ball of a random size. The more balls, the redder they become. Your goal is to see how many balls you can put on the screen, until it becomes totally red. You are not able to place balls on top of another previous ball. You also may not place them in the walls. When balls hit the wall, they will change their direction. All balls have the same speed, even those traveling diagonally.
