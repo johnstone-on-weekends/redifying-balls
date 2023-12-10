@@ -1,6 +1,6 @@
 
 function setup() {
-  createCanvas(400, 400);
+  createCanvas(1200, 600);
   balls = []
 }
 
@@ -52,13 +52,13 @@ function collisionDetected (ball1, ball2){
   if (ball1.ballX - radius1 < 0) {
     return true;
   }
-  if (ball1.ballX + radius1 > 400) {
+  if (ball1.ballX + radius1 > 1200) {
     return true;
   }
   if (ball1.ballY - radius1 < 0) {
     return true;
   }
-  if (ball1.ballY + radius1 > 400) {
+  if (ball1.ballY + radius1 > 600) {
     return true;
   }
   const distance = Math.sqrt(Math.pow(ball2.ballX - ball1.ballX, 2) + Math.pow(ball2.ballY - ball1.ballY, 2));
@@ -120,15 +120,6 @@ class Ball {
     ellipse(this.ballX, this.ballY, this.size);
   }
   
-  randomize() {
-    this.speedY = random(-5, 5);
-    this.speedX = random(-5, 5);
-    this.red = random(255);
-    this.green = random(255);
-    this.blue = random(255);
-    this.size = random(100);
-  }
-  
   checkForHitWall() {
   
     let radius = this.size / 2;
@@ -138,13 +129,6 @@ class Ball {
     if ((this.ballX+radius) > width  || (this.ballX-radius) < 0) {
       this.speedX = -this.speedX;  
     }
-  }
-  
-  
-  reverseBall() {
-    
-      this.speedX = -this.speedX;
-      this.speedY = -this.speedY;    
   }
   
   moveBall() {
