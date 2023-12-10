@@ -1,3 +1,6 @@
+var ballsAccuratelyClicked = 0;
+var ballsMissed = 0;
+
 
 function setup() {
   createCanvas(1200, 600);
@@ -5,20 +8,30 @@ function setup() {
 }
 
 function draw() {
-  numBalls = balls.length;
-  
-  
-  var totalRed = 0
-  var totalBlue = 0
-  var totalGreen = 0
   for (var ballNum = 0; ballNum < balls.length; ballNum++) {
-    totalRed = totalRed + balls[ballNum].red
-    totalBlue = totalBlue + balls[ballNum].blue
-    totalGreen = totalGreen + balls[ballNum].green
-   
+    if (balls[ballNum].size <= 0) {
+        balls.splice(ballNum, 1);
+        ballsMissed++;
+        ballNum--;
+    }
   }
   
-  background(Math.floor(255-totalRed/numBalls), Math.floor(255-totalBlue/numBalls), Math.floor(255-totalGreen/numBalls));
+  
+  numBalls = balls.length;
+  while (balls.length < 15) {
+    var gravBall = new Ball();
+    while (checkInitialCollision(gravBall)) {
+      gravBall = new Ball();
+    }
+    balls.push(gravBall);
+  }
+  
+  background(220);
+  fill(0);
+  textSize(16);
+  text("Accurate Clicks: " + ballsAccuratelyClicked, 20, height - 40);
+  text("Balls Missed: " + ballsMissed, 20, height - 20);
+  
   
   for (var ballNum = 0; ballNum < balls.length; ballNum++) {
     balls[ballNum].display();
@@ -28,37 +41,53 @@ function draw() {
   
   
 
-  if (mouseIsPressed) {
+  if (mouseIsPressed && keyIsDown(CONTROL)) {
     var gravBall = new Ball();
     gravBall.ballX = mouseX;
     gravBall.ballY = mouseY;
     for (var ballNum = 0; ballNum < balls.length; ballNum++) {
       if (collisionDetected(gravBall, balls[ballNum])) {
-        return
+        return;
       }
     }
-    
-    
     balls.push(gravBall);
+  } else if (mouseIsPressed) {
+    var gravBall = new Ball();
+    gravBall.ballX = mouseX;
+    gravBall.ballY = mouseY;
+    for (var ballNum = 0; ballNum < balls.length; ballNum++) {
+      if (aimedCorrectly(mouseX, mouseY, balls[ballNum])) {
+        balls.splice(ballNum, 1);
+        ballsAccuratelyClicked++;
+        ballNum--;
+      }
+    } 
   }
 }
 
+function aimedCorrectly(x, y, ball2){
+  let radius2 = ball2.size / 2;
+  let distance = dist(x, y, ball2.ballX, ball2.ballY);
+  return distance < radius2;
+}
 
+
+function checkInitialCollision(newBall) {
+  for (var ballNum = 0; ballNum < balls.length; ballNum++) {
+    if (collisionDetected(newBall, balls[ballNum])) {
+      return true;
+    }
+  }
+  return false;
+}
 
 function collisionDetected (ball1, ball2){
   let radius1 = ball1.size / 2;
   let radius2 = ball2.size / 2;
-  
-  if (ball1.ballX - radius1 < 0) {
+  if (ball1.ballX - radius1 < 0 || ball1.ballX + radius1 > 1200) {
     return true;
   }
-  if (ball1.ballX + radius1 > 1200) {
-    return true;
-  }
-  if (ball1.ballY - radius1 < 0) {
-    return true;
-  }
-  if (ball1.ballY + radius1 > 600) {
+  if (ball1.ballY - radius1 < 0 || ball1.ballY + radius1 > 600) {
     return true;
   }
   const distance = Math.sqrt(Math.pow(ball2.ballX - ball1.ballX, 2) + Math.pow(ball2.ballY - ball1.ballY, 2));
@@ -69,23 +98,21 @@ function collisionDetected (ball1, ball2){
 class Ball {
   
   constructor() {
-    // initial position
     this.ballX = random(100, width)
     this.ballY = random(100, height)
     
-    // Dictates velocity + direction
+
+    var magnitude = random(1.0,3.0)
+    var direction = random(360)
+
     
+    // Using trig to make sure the balls speed isn't dictated by whether it's going diagonally
+    var angleInRadians = radians(direction);
+    this.speedX = magnitude * cos(angleInRadians);
+    this.speedY = magnitude * sin(angleInRadians);
+    this.size = random(30,100);
     
-    
-     
-    
-    this.speedY = random()
-    this.speedX = sqrt(1-(this.speedY)^2)
-    
-    this.size = random(100);
-    
-    // How transparent the ball is
-    this.alpha = 100
+    this.alpha = 250
     
     // RGB values for color
     this.red   = random(255);
@@ -125,9 +152,11 @@ class Ball {
     let radius = this.size / 2;
     if ((this.ballY+radius) > height || (this.ballY-radius) < 0) {
   	  this.speedY = -this.speedY;  
+      this.size = this.size -10;
   	}
     if ((this.ballX+radius) > width  || (this.ballX-radius) < 0) {
-      this.speedX = -this.speedX;  
+      this.speedX = -this.speedX; 
+      this.size = this.size -10;
     }
   }
   
